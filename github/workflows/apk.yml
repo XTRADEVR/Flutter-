@@ -1,0 +1,35 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: 'stable'
+      - run: flutter pub get
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: semua-jenis-ai-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
+      - uses: softprops/action-gh-release@v1
+        if: github.ref == 'refs/heads/main'
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Semua Jenis AI v1.0.${{ github.run_number }}"
+          body: |
+            🚀 Poster 1080x4500 jadi App
+            - 17 Kategori, 56+ Tools
+            - Searchable + Tombol Lynk Rp 59k
+          files: build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
